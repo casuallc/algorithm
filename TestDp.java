@@ -1,5 +1,7 @@
 package com.qing.java8;
 
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * DP -- 动态规划
@@ -25,18 +27,19 @@ public class TestDp {
 	}
 
 	void run() throws Exception {
-		for(int k=1; k<15; k++) {
-			pipeLength = k;
-			splitPipeFromBottom();
-
-			int n = pipeLength;
-			while(true) {
-				if(n <= 0)
-					break;
-				System.out.println(pipeSplitLength[n]);
-				n = n - pipeSplitLength[n];
-			}
-		}
+//		for(int k=1; k<15; k++) {
+//			pipeLength = k;
+//			splitPipeFromBottom();
+//
+//			int n = pipeLength;
+//			while(true) {
+//				if(n <= 0)
+//					break;
+//				System.out.println(pipeSplitLength[n]);
+//				n = n - pipeSplitLength[n];
+//			}
+//		}
+		
 	}
 	
 	
@@ -97,5 +100,56 @@ public class TestDp {
 	
 	int getPipePriceWithLength(int l) {
 		return l / 10 * 30 + pipePriceWithLength[l % 10];
+	}
+	
+	
+	// 拦截导弹问题
+	void intercept() {
+		int array[] = {4, 19, 12, 7, 2, 4, 10, 3, 2};
+		// 拦截第n个位置时所能拦截的最大个数
+		int cacheCnt[] = new int[array.length];
+		// 拦截第n个位置时应该拦截的下一个位置
+		int cacheFa[] = new int[array.length];
+		
+		int len = array.length-1;
+		
+		for(int i=len; i>=0; i--) {
+			// 拦截最后一个
+			if(i == len) {
+				cacheCnt[len] = 1;
+				continue;
+			}
+			
+			int cnt = 1;
+			for(int k=len; k>i && array[i] > array[k]; k--) {
+				int temp = 1 + cacheCnt[k];
+				if(cnt < temp) {
+					cnt = temp;
+					cacheFa[i] = k;
+				}
+			}
+			cacheCnt[i] = cnt;
+		}
+		
+		int position = 0;
+		// 
+		for(int i=0; i<cacheCnt.length; i++) {
+			if(cacheCnt[position] < cacheCnt[i])
+				position = i;
+			System.out.print(cacheCnt[i] + ", ");
+		}
+		
+		System.out.println();
+		for(int i=0; i<cacheFa.length; i++) {
+			System.out.print(cacheFa[i] + ", ");
+		}
+		
+		// 输出结果
+		System.out.println();
+		while(cacheFa[position] != 0) {
+			System.out.print(array[position] + ", ");
+			position = cacheFa[position];
+		}
+		
 	}
 }
