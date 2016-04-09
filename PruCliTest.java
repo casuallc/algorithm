@@ -16,6 +16,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * 且只能顺序生产，12341234，消费者顺序消费
  * 数据存放到数组products[13]中
  * 每个生产200次
+ * 
  */
 public class CTest {
 
