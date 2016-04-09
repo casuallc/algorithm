@@ -16,16 +16,15 @@ import java.util.concurrent.locks.ReentrantLock;
  * 且只能顺序生产，12341234，消费者顺序消费
  * 数据存放到数组products[13]中
  * 每个生产200次
- * 
  */
 public class CTest {
 
-	private ReentrantLock lock = new ReentrantLock();
+	private ReentrantLock lock = new ReentrantLock(true);
 	private Condition condition = lock.newCondition();
 	private int products[] = new int[13];
 	
 	private int serverCount = 4;
-	private int eachProSum = 2;
+	private int eachProSum = 200;
 	
 	public static void main(String[] args) throws Exception {
 		CTest main = new CTest();
@@ -58,7 +57,6 @@ public class CTest {
 			while(true) {
 				try {
 					lock.lock();
-					
 					while(products[putPos % products.length] != 0 || putPos - getPos >= products.length) {
 						condition.await();
 					}
@@ -69,9 +67,9 @@ public class CTest {
 					// TODO: handle exception
 					e.printStackTrace();
 				} finally {
+					lock.unlock();
 					if(count >= eachProSum) {
 						System.out.println("server "+n+" is done");						
-						lock.unlock();
 						return;
 					}
 				}
@@ -86,10 +84,10 @@ public class CTest {
 		@Override
 		public void run() {
 			while(true) {
-				lock.lock();
 				if(products[getPos % products.length] == 0)
 					continue;
 				try {
+					lock.lock();
 					System.out.print(products[getPos % products.length]+", ");
 					products[getPos % products.length] =0;
 					getPos ++;
@@ -98,9 +96,9 @@ public class CTest {
 					// TODO: handle exception
 					e.printStackTrace();
 				} finally {
-					if(getPos > eachProSum*serverCount) {
+					lock.unlock();
+					if(getPos >= eachProSum*serverCount) {
 						System.out.println("client is done");
-						lock.unlock();
 						return;
 					}
 				}
